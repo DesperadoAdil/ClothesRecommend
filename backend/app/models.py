@@ -1,1 +1,2 @@
-from app import db
+# -*- coding: UTF-8 -*-
+# from app import db
