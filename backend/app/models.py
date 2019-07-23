@@ -11,12 +11,16 @@ class Task(db.Model):
     id = db.Column(db.Integer, primary_key=True, unique=True, nullable=False)
     instance = db.Column(db.String(64), unique=True, nullable=False)
     place = db.Column(db.String(64), unique=False, nullable=False)
+    is_deleted = db.Column(db.Boolean, unique=False, nullable=False, default=False)
     create_time = db.Column(db.DateTime(timezone="Asia/Shanghai"), default=datetime.now())
 
     def __repr__(self):
         return '<Task %r %r %r>' % (self.id, self.instance, self.place)
 
     def dict(self):
+        if self.is_deleted:
+            return None
+
         ret = {}
         try:
             ret['id'] = self.id
@@ -37,3 +41,11 @@ class Task(db.Model):
             return self
         except:
             return None
+
+    def delete(self):
+        try:
+            self.is_deleted = True
+            db.session.commit()
+            return True
+        except:
+            return False
