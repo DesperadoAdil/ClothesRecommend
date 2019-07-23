@@ -28,7 +28,7 @@
         </Card>
       </Col>
     </Row>
-    <Modal v-model="getTaskModal" title="任务详情">
+    <Modal v-model="getTaskModal" title="任务详情" @on-ok="ok">
       <p>任务id：{{ taskInfo.id }}</p>
       <p>任务实例id：{{ taskInfo.instance }}</p>
       <p>地名：{{ taskInfo.place }}</p>
@@ -36,7 +36,14 @@
       <p>任务状态：{{ taskInfo.state }}</p>
       <p v-if="taskInfo.ready==true">任务结果：{{ taskInfo.result }}</p>
     </Modal>
-    <Modal v-model="postTaskModal" title="创建任务">
+    <Modal v-model="postTaskModal" title="创建任务" @on-ok="handleSubmit('formInLine')">
+      <Form ref="formInLine" :model="formInLine" :rules="ruleInLine" inline>
+        <FormItem prop="place">
+          <Input type="text" v-model="formInLine.place" placeholder="地名">
+            <Icon type="ios-planet" slot="prepend"></Icon>
+          </Input>
+        </FormItem>
+      </Form>
     </Modal>
   </div>
 </template>
@@ -49,7 +56,15 @@ export default {
       taskList: [],
       getTaskModal: false,
       taskInfo: {},
-      postTaskModal: false
+      postTaskModal: false,
+      formInLine: {
+        place: '',
+      },
+      ruleInLine: {
+        place: [
+          { required: true, message: '请输入地名', trigger: 'blur' }
+        ]
+      }
     }
   },
   mounted () {
@@ -68,16 +83,24 @@ export default {
     newTaskModal () {
       this.postTaskModal = true
     },
-    newTask () {
-      console.log("new task")
-      /*this.$http.post("/api/task").then(res => {
-        //
-      }).catch(err => {
-        console.log(err)
-      })*/
+    handleSubmit (name) {
+      this.$refs[name].validate((valid) => {
+          if (valid) {
+              var data = {}
+              data.place = this.formInLine.place
+              this.$http.post("/api/task", data=data).then(res => {
+                this.$Message.success("任务创建成功！")
+                this.ok()
+              }).catch(err => {
+                console.log(err)
+                this.$Message.error("任务创建失败！")
+              })
+          } else {
+              this.$Message.error("请输入正确地名！");
+          }
+      })
     },
     getTask (index) {
-      console.log("get task")
       this.$http.get("/api/task/"+this.taskList[index].instance).then(res => {
         this.getTaskModal = true
         this.taskInfo.ready = res.data.ready
@@ -90,6 +113,10 @@ export default {
       }).catch(err => {
         console.log(err)
       })
+    },
+    ok () {
+      this.taskList = []
+      this.getTaskList()
     }
   }
 }
