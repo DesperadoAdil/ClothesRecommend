@@ -5,7 +5,7 @@
         <h1>任务列表</h1>
       </Col>
       <Col span="2" offset="18">
-        <Button type="primary" shape="circle" icon="md-add" @click="newTask">新建任务</Button>
+        <Button type="primary" shape="circle" icon="md-add" @click="newTaskModal">新建任务</Button>
       </Col>
     </Row>
     <Row style="margin-top:10px;">
@@ -18,7 +18,7 @@
             <Col span="5">任务创建时间</Col>
           </Row>
         </Card>
-        <Card v-for="(task, index) in tasklist" :bordered="false" style="margin:5px;" v-on:click.native="getTask">
+        <Card v-for="(task, index) in taskList" :bordered="false" style="margin:5px;" v-on:click.native="getTask(index)">
           <Row>
             <Col span="4">{{ task.id }}</Col>
             <Col span="10">{{ task.instance }}</Col>
@@ -28,6 +28,16 @@
         </Card>
       </Col>
     </Row>
+    <Modal v-model="getTaskModal" title="任务详情">
+      <p>任务id：{{ taskInfo.id }}</p>
+      <p>任务实例id：{{ taskInfo.instance }}</p>
+      <p>地名：{{ taskInfo.place }}</p>
+      <p>任务创建时间：{{ taskInfo.create_time }}</p>
+      <p>任务状态：{{ taskInfo.state }}</p>
+      <p v-if="taskInfo.ready==true">任务结果：{{ taskInfo.result }}</p>
+    </Modal>
+    <Modal v-model="postTaskModal" title="创建任务">
+    </Modal>
   </div>
 </template>
 
@@ -36,7 +46,10 @@ export default {
   name: 'Main',
   data () {
     return {
-      tasklist: []
+      taskList: [],
+      getTaskModal: false,
+      taskInfo: {},
+      postTaskModal: false
     }
   },
   mounted () {
@@ -46,11 +59,14 @@ export default {
     getTaskList() {
       this.$http.get("/api/task").then(res => {
         for (var i = 0; i < res.data.data.length; i++) {
-          this.tasklist.push(res.data.data[i])
+          this.taskList.push(res.data.data[i])
         }
       }).catch(err => {
         console.log(err)
       })
+    },
+    newTaskModal () {
+      this.postTaskModal = true
     },
     newTask () {
       console.log("new task")
@@ -60,13 +76,20 @@ export default {
         console.log(err)
       })*/
     },
-    getTask () {
+    getTask (index) {
       console.log("get task")
-      /*this.$http.post("/api/task").then(res => {
-        //
+      this.$http.get("/api/task/"+this.taskList[index].instance).then(res => {
+        this.getTaskModal = true
+        this.taskInfo.ready = res.data.ready
+        this.taskInfo.state = res.data.state
+        this.taskInfo.id = res.data.data.id
+        this.taskInfo.instance = res.data.data.instance
+        this.taskInfo.place = res.data.data.place
+        this.taskInfo.create_time = res.data.data.create_time
+        if (res.data.ready == true) this.taskInfo.result = res.data.result
       }).catch(err => {
         console.log(err)
-      })*/
+      })
     }
   }
 }
