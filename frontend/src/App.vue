@@ -1,13 +1,23 @@
 <template>
   <div id="app">
-    <img src="./assets/logo.png">
+    <Menu mode="horizontal" theme="dark" active-name="1">
+      <MenuItem name="home" on-select="gohome">
+        <Icon type="ios-home" />
+        首页
+      </MenuItem>
+    </Menu>
     <router-view/>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'App'
+  name: 'App',
+  methods: {
+    gohome () {
+      router.push('/')
+    }
+  }
 }
 </script>
 
@@ -18,6 +28,5 @@ export default {
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
 }
 </style>
