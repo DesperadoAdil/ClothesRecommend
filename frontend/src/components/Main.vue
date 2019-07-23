@@ -35,6 +35,7 @@
       <p>任务创建时间：{{ taskInfo.create_time }}</p>
       <p>任务状态：{{ taskInfo.state }}</p>
       <p v-if="taskInfo.ready==true">任务结果：{{ taskInfo.result }}</p>
+      <Button type="error" shape="circle" icon="ios-trash" @click="deleteTask()">删除任务</Button>
     </Modal>
     <Modal v-model="postTaskModal" title="创建任务" @on-ok="handleSubmit('formInLine')">
       <Form ref="formInLine" :model="formInLine" :rules="ruleInLine" inline>
@@ -112,6 +113,14 @@ export default {
         if (res.data.ready == true) this.taskInfo.result = res.data.result
       }).catch(err => {
         console.log(err)
+      })
+    },
+    deleteTask () {
+      this.$http.delete("/api/task/"+this.taskInfo.instance).then(res => {
+        this.$Message.success("任务删除成功！")
+      }).catch(err => {
+        console.log(err)
+        this.$Message.error("任务删除失败！")
       })
     },
     ok () {
