@@ -43,7 +43,15 @@ class TaskList(Resource):
         tasks = Task.query.filter_by(is_deleted=False).order_by(Task.create_time.desc()).all()
         if tasks:
             for task in tasks:
-                ret["data"].append(task.dict())
+                dic = task.dict()
+                if session.get(task.instance):
+                    ta = session.get(task.instance)
+                    dic["ready"] = ta.ready()
+                    dic["state"] = ta.state
+                    if ta.ready():
+                        dic["result"] = ta.get()
+                    ret["data"].append(dic)
+
             ret["message"] = "success"
             status = 200
         else:

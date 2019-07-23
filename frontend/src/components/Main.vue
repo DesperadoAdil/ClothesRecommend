@@ -14,7 +14,7 @@
           <Row>
             <Col span="4">任务id</Col>
             <Col span="10">任务实例id</Col>
-            <Col span="5">输入地名</Col>
+            <Col span="5">任务状态</Col>
             <Col span="5">任务创建时间</Col>
           </Row>
         </Card>
@@ -22,7 +22,7 @@
           <Row>
             <Col span="4">{{ task.id }}</Col>
             <Col span="10">{{ task.instance }}</Col>
-            <Col span="5">{{ task.place }}</Col>
+            <Col span="5">{{ task.state }}</Col>
             <Col span="5">{{ task.create_time }}</Col>
           </Row>
         </Card>
