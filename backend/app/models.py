@@ -26,3 +26,14 @@ class Task(db.Model):
             return ret
         except:
             return None
+
+    def insert(self, instance, place):
+        try:
+            self.instance = instance
+            self.place = place
+            self.create_time = datetime.now()
+            db.session.add(self)
+            db.session.commit()
+            return self
+        except:
+            return None

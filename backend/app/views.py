@@ -1,9 +1,11 @@
 # -*- coding: UTF-8 -*-
+from flask import request
 from . import app, celery, api
 from .models import Task
 from .utils import return_response
 from flask_restful import Resource
 import time
+import json
 
 @app.route('/')
 def hello_world():
@@ -21,7 +23,7 @@ def taskk():
 
 @celery.task
 def create_task(x, y):
-    time.sleep(5)
+    time.sleep(15)
     return x+y
 
 
@@ -50,8 +52,47 @@ class TaskList(Resource):
 
         return return_response(status=status, ret=ret)
 
+
     """
     create a task.
     """
     def post(self):
-        return "post /task"
+        ret = {}
+        status = 202
+        ret['message'] = "accepted"
+
+        try:
+            data = json.loads(request.get_data())
+            place = data["place"]
+        except:
+            ret["message"] = "invalid request"
+            status = 400
+            return return_response(status=status, ret=ret)
+
+        task = create_task.delay(1, 2)
+        ta = Task().insert(str(task), place)
+        if ta:
+            ret["message"] = "success"
+            status = 201
+        else:
+            ret["message"] = "invalid request"
+            status = 400
+
+        return return_response(status=status, ret=ret)
+
+
+api.resource("/task/<string:id>")
+class TaskID(Resource):
+
+    """
+    get a task by id.
+    """
+    def get(self, id):
+        pass
+
+
+    """
+    delete a task by id.
+    """
+    def delete(self, id):
+        pass
