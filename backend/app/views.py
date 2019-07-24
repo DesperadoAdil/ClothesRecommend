@@ -1,5 +1,5 @@
 # -*- coding: UTF-8 -*-
-from flask import request, session, url_for
+from flask import request, session, url_for, render_template, current_app
 from sqlalchemy import and_
 from . import app, celery, api
 from .models import Task
@@ -7,13 +7,12 @@ from .utils import return_response
 from flask_restful import Resource
 import time
 import json
-
-@app.route('/')
-def hello_world():
-    return 'Hello World!'
+import random
+import os
 
 
 @app.route('/taskk', methods = ["POST", "GET"])
+@app.route('/api/taskk', methods = ["POST", "GET"])
 def taskk():
     task = create_task.delay(10, 20)
     while True:
@@ -25,10 +24,23 @@ def taskk():
 @celery.task
 def create_task(x, y):
     time.sleep(15)
-    return x+y
+    choice = []
+    image_list = []
+    with app.app_context():
+        image_dir = os.path.join(current_app.config["BASEDIR"], "app/static/tmp").replace("\\", "/")
+        for images in os.listdir(image_dir):
+            list = []
+            for image in os.listdir(os.path.join(image_dir, images).replace("\\", "/")):
+                list.append(os.path.join("tmp", images, image).replace("\\", "/"))
+            choice.append(list)
+        list = random.choice(choice)
+        for image in list:
+            img = url_for('static', filename=image)
+            image_list.append(img)
+    return image_list
 
 
-@api.resource("/task")
+#@api.resource("/task")
 class TaskList(Resource):
 
     """
@@ -95,7 +107,7 @@ class TaskList(Resource):
         return return_response(status=status, ret=ret)
 
 
-@api.resource("/task/<string:id>")
+#@api.resource("/task/<string:id>")
 class TaskID(Resource):
 
     """
@@ -152,3 +164,15 @@ class TaskID(Resource):
                 status = 500
 
         return return_response(status=status, ret=ret)
+
+
+#api.add_resource(TaskList, "/task")
+api.add_resource(TaskList, "/api/task")
+#api.add_resource(TaskID, "/task/<string:id>")
+api.add_resource(TaskID, "/api/task/<string:id>")
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def index(path):
+    return render_template("index.html")

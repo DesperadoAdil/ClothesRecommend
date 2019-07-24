@@ -16,3 +16,6 @@ SESSION_USE_SIGNER = True
 SESSION_KEY_PREFIX = ''
 import redis
 SESSION_REDIS = redis.Redis(host='127.0.0.1', port='6379')
+
+import os
+BASEDIR = os.path.dirname(__file__)

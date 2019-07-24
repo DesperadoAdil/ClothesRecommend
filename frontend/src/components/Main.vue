@@ -28,13 +28,18 @@
         </Card>
       </Col>
     </Row>
-    <Modal v-model="getTaskModal" title="任务详情" @on-ok="ok">
+    <Modal v-model="getTaskModal" fullscreen title="任务详情" @on-ok="ok">
       <p>任务id：{{ taskInfo.id }}</p>
       <p>任务实例id：{{ taskInfo.instance }}</p>
       <p>地名：{{ taskInfo.place }}</p>
       <p>任务创建时间：{{ taskInfo.create_time }}</p>
       <p>任务状态：{{ taskInfo.state }}</p>
-      <p v-if="taskInfo.ready==true">任务结果：{{ taskInfo.result }}</p>
+      <div v-if="taskInfo.ready==true">
+        <p>任务结果：</p>
+        <div v-for="(image, index) in taskInfo.result">
+          <img :src="image" />
+        </diV>
+      </div>
       <Button type="error" shape="circle" icon="ios-trash" @click="deleteTask()">删除任务</Button>
     </Modal>
     <Modal v-model="postTaskModal" title="创建任务" @on-ok="handleSubmit('formInLine')">
