@@ -35,7 +35,7 @@ def create_task(x, y):
             choice.append(list)
         list = random.choice(choice)
         for image in list:
-            img = url_for('static', filename=image)
+            img = "http://localhost/static/" + image
             image_list.append(img)
     return image_list
 
