@@ -102,9 +102,6 @@ def grabcut(image):
     binary =  cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 25, 10)#cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
     contours, hierarchy = cv.findContours(binary, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
-    #print (hierarchy)
-    #print (contours[13])
-
     l = size[1]
     u = size[0]
     r = b = 0
@@ -127,10 +124,7 @@ def grabcut(image):
         bottommost = tuple(contour[:,0][contour[:,:,1].argmax()])
         if bottommost[1] > b:
             b = bottommost[1]
-        #print (leftmost, rightmost, upmost, bottommost)
     print (l, r, u, b)
-    cv.circle(img, (l, u), 2, (0, 0, 255), 3)
-    cv.circle(img, (r+60, b), 2, (0, 0, 255), 3)
 
     mask = np.zeros(img.shape[:2], np.uint8)
     bgdModel = np.zeros((1, 65), np.float64)
@@ -142,14 +136,18 @@ def grabcut(image):
     mask2 = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
     img = img * mask2[:, :, np.newaxis]
     img += 255 * (1 - cv.cvtColor(mask2, cv.COLOR_GRAY2BGR))
+    print (img)
+    cv.namedWindow("grabcut", cv.WINDOW_NORMAL)
+    cv.imshow("grabcut", img)
 
-    img = np.array(img)
+    """img = np.array(img)
     mean = np.mean(img)
     img = img - mean
     img = img * 0.9 + mean * 0.9
     img /= 255
+    print (img)
     plt.imshow(img)
-    plt.show()
+    plt.show()"""
 
 
 if __name__ == "__main__":
