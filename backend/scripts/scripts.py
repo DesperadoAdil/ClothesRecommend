@@ -140,6 +140,8 @@ def grabcut(image):
     cv.namedWindow("result", cv.WINDOW_NORMAL)
     cv.imshow("result", result)
 
+    return result
+
 
 if __name__ == "__main__":
     image = "./img/8.jpg"
