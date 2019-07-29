@@ -1,7 +1,6 @@
 # -*- coding: UTF-8 -*-
 import cv2 as cv
 import numpy as np
-from matplotlib import pyplot as plt
 
 #全局阈值
 def threshold_demo(image):
@@ -42,10 +41,7 @@ def show(string, binary):
     #闭操作
     ret2 = cv.morphologyEx(binary, cv.MORPH_CLOSE, kernel, iterations=5)
     """
-
     cv.imshow(string, binary)
-    #cv.imshow(string+"ret1", ret1)
-    #cv.imshow(string+"ret2", ret2)
 
 
 def contours(image):
@@ -56,24 +52,17 @@ def contours(image):
     binary =  cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 25, 10)#cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
     contours, hierarchy = cv.findContours(binary, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
-    #print (hierarchy)
-    #print (contours[13])
-
     l = size[1]
     u = size[0]
     r = b = 0
     print (len(contours))
     for contour in contours:
-        """if tuple(contour[:,0][contour[:,:,0].argmin()])[0] == 0 and tuple(contour[:,0][contour[:,:,1].argmin()])[1] == 0:
-            continue"""
-
         leftmost = tuple(contour[:,0][contour[:,:,0].argmin()])
         if leftmost[0] != 0 and leftmost[0] < l:
             l = leftmost[0]
 
         rightmost = tuple(contour[:,0][contour[:,:,0].argmax()])
         if rightmost[0] != size[1]-1 and rightmost[0] > r:
-            print (rightmost)
             r = rightmost[0]
 
         upmost = tuple(contour[:,0][contour[:,:,1].argmin()])
@@ -83,12 +72,10 @@ def contours(image):
         bottommost = tuple(contour[:,0][contour[:,:,1].argmax()])
         if bottommost[1] != size[0]-1 and bottommost[1] > b:
             b = bottommost[1]
-        #print (leftmost, rightmost, upmost, bottommost)
     print (l, r, u, b)
     cv.circle(img, (l, u), 2, (0, 0, 255), 3)
-    cv.circle(img, (r+60, b), 2, (0, 0, 255), 3)
+    cv.circle(img, (r, b), 2, (0, 0, 255), 3)
 
-    #con = np.delete(contours, 13)
     cv.drawContours(img, contours, -1, (0, 0, 255), 3)
     cv.namedWindow("contours", cv.WINDOW_NORMAL)
     cv.imshow("contours", img)
@@ -98,6 +85,7 @@ def grabcut(image):
     img = cv.imread(image)
     size = img.shape
     print (size)
+    src = img
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
     binary =  cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 25, 10)#cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
     contours, hierarchy = cv.findContours(binary, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
@@ -106,25 +94,22 @@ def grabcut(image):
     u = size[0]
     r = b = 0
     for contour in contours:
-        if tuple(contour[:,0][contour[:,:,0].argmin()])[0] == 0 and tuple(contour[:,0][contour[:,:,1].argmin()])[1] == 0:
-            continue
-
         leftmost = tuple(contour[:,0][contour[:,:,0].argmin()])
-        if leftmost[0] < l:
+        if leftmost[0] != 0 and leftmost[0] < l:
             l = leftmost[0]
 
         rightmost = tuple(contour[:,0][contour[:,:,0].argmax()])
-        if rightmost[0] > r:
+        if rightmost[0] != size[1]-1 and rightmost[0] > r:
             r = rightmost[0]
 
         upmost = tuple(contour[:,0][contour[:,:,1].argmin()])
-        if upmost[1] < u:
+        if upmost[1] != 0 and upmost[1] < u:
             u = upmost[1]
 
         bottommost = tuple(contour[:,0][contour[:,:,1].argmax()])
-        if bottommost[1] > b:
+        if bottommost[1] != size[0]-1 and bottommost[1] > b:
             b = bottommost[1]
-    print (l, r, u, b)
+    print ("left:%d right:%d up:%d bottom:%d" % (l, r, u, b))
 
     mask = np.zeros(img.shape[:2], np.uint8)
     bgdModel = np.zeros((1, 65), np.float64)
@@ -136,31 +121,35 @@ def grabcut(image):
     mask2 = np.where((mask == 2) | (mask == 0), 0, 1).astype('uint8')
     img = img * mask2[:, :, np.newaxis]
     img += 255 * (1 - cv.cvtColor(mask2, cv.COLOR_GRAY2BGR))
-    print (img)
     cv.namedWindow("grabcut", cv.WINDOW_NORMAL)
     cv.imshow("grabcut", img)
 
-    """img = np.array(img)
-    mean = np.mean(img)
-    img = img - mean
-    img = img * 0.9 + mean * 0.9
-    img /= 255
-    print (img)
-    plt.imshow(img)
-    plt.show()"""
+    mask = np.ones(size[0:2], dtype = np.uint8)
+    mask *= 255
+    for row in range(size[0]):
+        for col in range(size[1]):
+            """RGB 3 channel img"""
+            (r, g, b) = img[row][col]
+            if r == 255 and g == 255 and b == 255:
+                continue
+            mask[row][col] = 0
+    cv.namedWindow("mask", cv.WINDOW_NORMAL)
+    cv.imshow("mask", mask)
+
+    result = cv.add(src, np.zeros(np.shape(src), dtype=np.uint8), mask=mask)
+    cv.namedWindow("result", cv.WINDOW_NORMAL)
+    cv.imshow("result", result)
 
 
 if __name__ == "__main__":
     image = "./img/8.jpg"
     src = cv.imread(image)
     cv.namedWindow('input_image', cv.WINDOW_NORMAL) #设置为WINDOW_NORMAL可以任意缩放
-    cv.circle(src, (253, 21), 2, (0, 0, 255), 3)
-    cv.circle(src, (502, 861), 2, (0, 0, 255), 3)
     show('input_image', src)
     #threshold_demo(src)
     #local_threshold(src)
     #custom_threshold(src)
-    contours(image)
+    #contours(image)
     grabcut(image)
     cv.waitKey(0)
     cv.destroyAllWindows()
