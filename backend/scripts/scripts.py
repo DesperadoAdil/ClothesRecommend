@@ -87,7 +87,7 @@ def grabcut(image):
     print (size)
     src = img
     gray = cv.cvtColor(img, cv.COLOR_BGR2GRAY)
-    binary =  cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 25, 10)#cv.threshold(gray, 127, 255, cv.THRESH_BINARY)
+    binary =  cv.adaptiveThreshold(gray, 255, cv.ADAPTIVE_THRESH_GAUSSIAN_C, cv.THRESH_BINARY, 25, 10)
     contours, hierarchy = cv.findContours(binary, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
     l = size[1]

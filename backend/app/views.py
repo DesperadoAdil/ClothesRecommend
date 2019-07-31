@@ -11,16 +11,6 @@ import random
 import os
 
 
-@app.route('/taskk', methods = ["POST", "GET"])
-@app.route('/api/taskk', methods = ["POST", "GET"])
-def taskk():
-    task = create_task.delay(10, 20)
-    while True:
-        if task.ready():
-            break
-    return "TASK!, %s, %s" % (task, task.get())
-
-
 @celery.task
 def create_task(x, y):
     time.sleep(15)

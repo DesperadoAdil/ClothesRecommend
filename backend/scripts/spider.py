@@ -1,7 +1,4 @@
 # -*- coding: UTF-8 -*-
-import re
-import urllib
-import urllib3
 import os
 from lxml import etree
 import requests
