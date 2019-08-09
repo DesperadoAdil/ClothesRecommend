@@ -6,7 +6,7 @@ CELERY_BROKER_URL = "redis://localhost:6379/1"
 CELERY_RESULT_BACKEND = "redis://localhost:6379/1"
 CELERY_INCLUDE = []
 
-SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://root:root12345@localhost:3306/clothes?charset=utf8mb4'
+SQLALCHEMY_DATABASE_URI = 'mysql+pymysql://username:password@localhost:3306/database?charset=utf8mb4'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
 SQLALCHEMY_POOL_RECYCLE = 3600
 

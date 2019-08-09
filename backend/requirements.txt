@@ -11,3 +11,12 @@ flask-redis==0.4.0
 flask-session==0.3.1
 eventlet==0.25.0
 flask-restful==0.3.7
+DateTime==4.3
+tensorflow==1.14.0
+matplotlib==3.1.1
+lxml==4.4.0
+requests==2.22.0
+beautifulsoup4==4.8.0
+numpy==1.17.0
+torchvision==0.3.0
+torch==1.1.0

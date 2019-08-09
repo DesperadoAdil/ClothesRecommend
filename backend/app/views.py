@@ -4,6 +4,7 @@ from sqlalchemy import and_
 from . import app, celery, api
 from .models import Task
 from .utils import return_response
+from .demo.demo import get_demo_result
 from flask_restful import Resource
 import time
 import json
@@ -12,22 +13,9 @@ import os
 
 
 @celery.task
-def create_task(x, y):
-    time.sleep(15)
-    choice = []
-    image_list = []
-    with app.app_context():
-        image_dir = os.path.join(current_app.config["BASEDIR"], "app/static/tmp").replace("\\", "/")
-        for images in os.listdir(image_dir):
-            list = []
-            for image in os.listdir(os.path.join(image_dir, images).replace("\\", "/")):
-                list.append(os.path.join("tmp", images, image).replace("\\", "/"))
-            choice.append(list)
-        list = random.choice(choice)
-        for image in list:
-            img = "http://localhost/static/" + image
-            image_list.append(img)
-    return image_list
+def create_task(place):
+    result = get_demo_result(place)
+    return result
 
 
 #@api.resource("/task")
@@ -80,7 +68,7 @@ class TaskList(Resource):
             status = 400
             return return_response(status=status, ret=ret)
 
-        task = create_task.delay(1, 2)
+        task = create_task.delay(place)
         ta = Task().insert(task.task_id, place)
         if ta:
             session[ta.instance] = task

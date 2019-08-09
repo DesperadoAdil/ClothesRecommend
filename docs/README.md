@@ -23,6 +23,7 @@
   - **param** `id` 任务id
 
 #### 部署
+- 详细见 `backend/README.md`
 - redis
   `redis://localhost:6379/`
 
